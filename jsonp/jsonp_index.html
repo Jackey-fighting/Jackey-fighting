@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>JSONP的跨域是依赖js的src来执行现有的函数</title>
+</head>
+<body>
+<div id="divCustomers"></div>
+
+
+<script type="text/javascript">
+	function callbackFunction(result){
+		//console.log(result);
+		var res=result['name'];
+		var html='<ul>';
+		for(var i=0;i<res.length;i++){
+			html+='<li>'+res[i]+'</li>';
+		}
+		html+='</ul>';
+		document.getElementById('divCustomers').innerHTML=html;
+	}
+</script>
+<script type="text/javascript" src="./jsonp.php?jsoncallback=callbackFunction"></script>
+</body>
+</html>
