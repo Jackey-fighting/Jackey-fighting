@@ -1,0 +1,5 @@
+用chkconfig 可以查看当前的服务
+
+没有安装chkconfig吧，
+sudo apt-get install chkconfig  ，安装 chkconfig
+运行chkconfig就可以了。
