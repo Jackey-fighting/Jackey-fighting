@@ -112,4 +112,18 @@ class Download
     }
     return $res;
     }
+    
+    /*
+      //设第一行的名称
+            $objPHPExcel->getActiveSheet()->setCellValue($k.$t, $v[0]);
+            //设置填充颜色
+            $objPHPExcel->getActiveSheet()->getStyle($k.$t)->getFill()->setFillType(\PHPExcel_Style_Fill::FILL_SOLID);
+            $objPHPExcel->getActiveSheet()->getStyle($k.$t)->getFill()->getStartColor()->setARGB('FF4F81BD');
+            //设置字体
+            $objPHPExcel->getActiveSheet()->getStyle($k.$t)->getFont()->setName('微软雅黑');
+            //设置文字大小
+            $objPHPExcel->getActiveSheet()->getStyle($k.$t)->getFont()->setSize(9);
+            //设置文字颜色
+            $objPHPExcel->getActiveSheet()->getStyle($k.$t)->getFont()->getColor()->setARGB(\PHPExcel_Style_Color::COLOR_WHITE);
+    */
 }
