@@ -1,0 +1,2 @@
+JS and PHP 来实现网页截图
+http://www.kubilayerdogan.net/html2canvas-take-screenshot-of-web-page-and-save-it-to-server-javascript-and-php/
