@@ -1,0 +1,24 @@
+1.redis 下载安装包
+2.tar -zvxf redis安装包名
+3.cd 解压出来的redis目录
+4.make 一下安装redis
+5.cd src/  目录，然后直接./redis-server启动服务
+
+
+然后我们需要下载hiredis来进行swoole异步控制redis
+download_url : hiredis下载地址：https://github.com/redis/hiredis/releases
+tar -zvxf 文件名 #解压
+cd hiredis目录  #进入刚解压的hiredis目录
+make -j
+sudo make install
+sudo ldconfig
+
+然后需要在之前安装的swoole目录重置配置
+./configure --with-php-config=/usr/local/php/bin/php-config --enbale-async-redis
+重置完之后：
+1.make clean #清除之前编译过的.o文件
+2.make #编译一下
+3.sudo make install #进行安装
+4.php -m #判断swoole拓展还在不在
+小技巧
+5.php --ri swoole #来判断async_redis client =>enable，是否存在
