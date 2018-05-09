@@ -1,0 +1,16 @@
+lnmp是我们常用的php环境之一，有着简单易学、功能强大的特点。那么lnmp安装目录在哪呢？ 以下就是常见的lnmp安装目录，希望对大家能有所帮助。
+
+Nginx 目录: /usr/local/nginx/
+MySQL 目录 : /usr/local/mysql/
+MySQL数据库所在目录：/usr/local/mysql/var/
+MariaDB 目录 : /usr/local/mariadb/
+MariaDB数据库所在目录：/usr/local/mariadb/var/
+PHP目录 : /usr/local/php/
+PHPMyAdmin目录 : 0.9版本为/home/wwwroot/phpmyadmin/ 1.0及以后版本为 /home/wwwroot/default/phpmyadmin/ 强烈建议将此目录重命名为其不容易猜到的名字。phpmyadmin可自己从官网下载新版替换。
+默认网站目录 : 0.9版本为 /home/wwwroot/ 1.0及以后版本为 /home/wwwroot/default/
+Nginx日志目录：/home/wwwlogs/
+/root/vhost.sh添加的虚拟主机配置文件所在目录：/usr/local/nginx/conf/vhost/
+PureFtpd 目录：/usr/local/pureftpd/
+PureFtpd web管理目录： 0.9版为/home/wwwroot/default/ftp/ 1.0版为 /home/wwwroot/default/ftp/
+Proftpd 目录：/usr/local/proftpd/
+Redis 目录：/usr/local/redis/
