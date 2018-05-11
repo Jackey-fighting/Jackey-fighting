@@ -1,0 +1,9 @@
+1. 启动Mongo服务
+net start MongoDB
+
+2. 关闭Mongo服务
+net stop MongoDB
+
+3.Mongo后台连接进入
+>cd Mongo\bin 
+>mongo
