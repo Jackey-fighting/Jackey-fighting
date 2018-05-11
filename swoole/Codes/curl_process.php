@@ -17,6 +17,7 @@ for ($i=0; $i < $count; $i++) {
 		//创建进程成功后调用回调函数，也会执行这里的内容
     $content = curlData($urls[$i]);
 		echo $content.PHP_EOL; //这里的消息打印到管道里面，使用read()去读取
+		//$worker->write($content); //这样把数据写到管道里面
 	}, true);
   
 	$pid = $process->start();//每次start()都会创建一个子进程
