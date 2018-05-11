@@ -1,0 +1,7 @@
+监听的工具有2 个，都是MongoDB自带的：
+
+1.mongostat、mongotop
+
+2.一般都是第一手操作mongostat 来查看当前的MongoDB的性能；
+
+3.可以使用mongotop的读写情况。
