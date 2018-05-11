@@ -18,3 +18,12 @@ $collection->aggregate(['$project'=>['myid'=>"$_id"]]);
 { "_id" : "01008", "myid" : "01008" }*/
 #如果你想要只显示myid的话，可以直接加个 _id:0；
 #['$project'=>['myid'=>"$_id", '_id'=>0]]
+
+/*使用聚合函数，好像$group 的_id 是不能改的，后面的$name随便你弄成你想要的字段
+$arr = array(
+	['$match'=>['name'=>['$eq'=>'Go']]],
+	['$group'=>['_id'=>'$name', 'total'=>['$sum'=>1]]]
+);
+$result = $db->runoob->aggregate($arr, ["cursor"=>[ "batchSize" => 10000 ]]);
+var_dump($result);
+*/
