@@ -1,0 +1,5 @@
+skip(), limit(), sort()三个放在一起的时候，先执行sort(),然后skip()，limit()；
+
+limit() ： 只有参数一个::数字，就是返回多少条；
+skip() ： 是忽略多少条开始，默认从0；
+sort() :  排序，kye=>value ， value只有 1 ： 升序， -1 ：降序；
