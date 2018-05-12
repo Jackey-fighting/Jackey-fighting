@@ -1,0 +1,263 @@
+一、数据插入
+
+//insert()
+//参数1：一个数组或对象
+//参数2：扩展选项
+// fsync：默认为false，若为true则mongo在确认数据插入成功之前将会强制把数据写入硬盘
+// j：默认为false，若为true则mongo在确认数据插入成功之前将会强制把数据写入日志
+// w：默认为1，写操作会被（主）服务器确认，若为0则将不会得到确认，使用复制集时设置为n用于确保主服务器将数据修改成功复制到n个节点后再确认
+// wtimeout：默认为10000（毫秒），用于指定服务器等待接收确认的时间
+// timeout：指定客户端需要等待服务器响应的超时时间（毫秒）
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;//选择数据库
+$collection = $db->friend;//选择文档集合
+$doc = [//定义一个文档，即一个数组
+  'First Name' => 'Jet',
+  'Last Name' => 'Wu',
+  'Age' => 26,
+  'Phone' => '110',
+  'Address' => [
+    'Country' => 'China',
+    'City' => 'Shen Zhen'
+  ],
+  'E-Mail' => [
+    '123456@qq.com',
+    '666666@sina.com',
+    '8888888@qq.com',
+    '77887788@qq.com'
+  ]
+];
+$res = $collection->insert($doc);//向集合中插入一个文档
+echo '<pre>';
+print_r($res);//$res['ok']=1表示插入成功
+
+
+
+二、数据查询
+1.查询单个文档：
+
+//findOne()
+//参数1：搜索条件
+//参数2：指定返回字段，array('fieldname' => true, 'fieldname2' => true)。_id字段总会返回，除非在第二个参数显式加入'_id'=>false。不设置则返回所有字段
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$one = $collection->findOne(['First Name' => 'Jet']);
+echo '<pre>';
+print_r($one);//返回一个数组，查不到数据则返回NULL
+
+
+2.查询多个文档：
+
+//find()
+//参数1：搜索条件
+//参数2：指定返回字段，array('fieldname' => true, 'fieldname2' => true)。_id字段总会返回，除非显式设置为false不返回。不设置则返回所有字段
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$cursor = $collection->find(['Address.Country' => 'China']);//使用点操作符查找数组元素
+echo '<pre>';
+while($doc = $cursor->getNext()) {//循环读取每个匹配的文档
+  print_r($doc);
+}
+
+
+使用各种条件操作符定义查询：
+
+//mongodb分别使用$lt、$lte、$eq、$gte、$gt、$ne表示<、<=、=、>=、>、<>，用于整数字段查询
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$cursor = $collection->find(['Age' => ['$gt' => 30]]);
+echo '<pre>';
+while($doc = $cursor->getNext()) {
+  print_r($doc);
+}
+//查询某个字段的所有不重复的值
+$res = $collection->distinct('Age');
+//$in：匹配多个值中任意一个
+$cursor = $collection->find(['Address.Country' => ['$in' => ['China', 'USA']]]);
+//$all：匹配多个值中所有值（用于数组字段查询）
+$cursor = $collection->find(['E-Mail' => ['$all' => ['123456@qq.com', '77887788@qq.com']]]);
+//$or：或查询
+$cursor = $collection->find(['$or' => [['First Name' => 'Jet'], ['Address.Country' => 'USA']]]);
+//$slice：获取数组字段中指定数目的元素，位于find()函数第二个参数中
+$cursor = $collection->find(['First Name' => 'Jet'], ['E-Mail' => ['$slice' => 2]]);//只返回前两个email
+$cursor = $collection->find(['First Name' => 'Jet'], ['E-Mail' => ['$slice' => -2]]);//只返回最后两个email
+$cursor = $collection->find(['First Name' => 'Jet'], ['E-Mail' => ['$slice' => [1, 2]]]);//忽略第一个，返回接下来两个
+//$exists：根据某个字段是否有设置值进行查询
+$cursor = $collection->find(['Hobby' => ['$exists' => false]]);//查找Hobby字段未设置值的文档
+//正则表达式查询
+$cursor = $collection->find(['First Name' => new MongoRegex('/^Je/i')]);//查找First Name字段以Je开头的文档，忽略大小写差异
+
+
+使用MongoCursor类提供的其他函数：
+
+//排序：1升序，-1降序
+$cursor->sort(['Age' => 1]);
+//忽略前n个匹配的文档
+$cursor->skip(1);
+//只返回前n个匹配的文档（limit()与skip()结合使用可实现数据分页功能）
+$cursor->limit(1);
+//匹配文档的总数
+$cursor->count();
+//指定查询索引
+$cursor->hint(['Last Name' => -1]);//若索引不存在则会报错
+
+
+聚集查询：对数据进行分组统计
+
+//聚合查询：对数据进行分组统计
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$res = $collection->aggregate([
+  '$group' => [
+    '_id' => '$Address.Country',//分组字段，注意要加上“$”，这里是根据数组字段某个元素值进行分组
+    'total' => ['$sum' => 1],//求总和，表示每匹配一个文档总和就加1
+    'maxAge' => ['$max' => '$Age'],//分组中Age字段最大值
+    'minAge' => ['$min' => '$Age']//分组中Age字段最小值
+  ]
+]);
+echo '<pre>';
+print_r($res);//返回一个数组，$ret['result']为数组，存放统计结果
+//存在其它操作的聚合查询：多个操作之间执行先后顺序取决于它们位置的先后顺序
+//聚合查询中的所有操作，包括'$group'在内，都是可选的。
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$res = $collection->aggregate([
+  [//过滤条件：只对符合条件的原始文档进行聚合运算，若是放在'$group'之后则是只返回符合条件的结果文档
+    '$match' => ['Age' => ['$gt' => 30]]
+  ],
+  [//指定分组字段、统计字段
+    '$group' => [
+      '_id' => '$Address.Country',
+      'totalAge' => ['$sum' => '$Age']//计算各个分组Age字段总和
+    ]
+  ],
+  //以下操作若是放在'$group'之前则在聚合前作用于原始文档，若放在'$group'之后则在聚合后作用于结果文档
+  ['$unwind' => '$E-Mail'],//将包含有某个数组类型字段的文档拆分成多个文档，每个文档的同名字段的值为数组中的一个值。
+  ['$project' => ['myAge' => '$Age', 'First Name' => '$First Name']],//指定返回字段，可以对字段进行重命名，格式：返回字段名 => $原来字段名
+  ['$skip' => 2],//跳过指定数量的文档
+  ['$limit' => 2],//只返回指定数量的文档
+  ['$sort' => ['totalAge' => 1]]//排序
+]);
+echo '<pre>';
+print_r($res);
+
+
+
+三、数据修改
+
+
+//update()
+//参数1：更新条件，指定更新的目标对象。
+//参数2：指定用于更新匹配记录的对象。
+//参数3：扩展选项组。
+// upsert：若设置为true，当没有匹配文档的时候会创建一个新的文档。
+// multiple：默认为false，若设置为true，匹配文档将全部被更新。
+// fsync：若设置为true，w参数将被覆盖为0，数据将在更新结果返回前同步到磁盘。
+// w：默认为1；若设置为0，更新操作将不会得到确认；使用复制集时可设置为n，确保主服务器在将修改复制到n个节点后才确认该更新操作
+// j：默认为false，若设置为true，数据将在更新结果返回之前写入到日志中。
+// wtimeout：默认为10000（毫秒），用于指定服务器等待接收确认的时间
+// timeout：指定客户端需要等待服务器响应的超时时间（毫秒）
+//注意：若不使用任何修改操作符，则匹配文档将直接被整个替换为参数2指定的对象。
+//$inc：增加特定键的值，若字段不存在则新建字段并赋值
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$res = $collection->update(['First Name' => 'Jet'], ['$inc' => ['Age' => 2]]);
+echo '<pre>';
+print_r($res);//$res['ok']=1表示修改成功，$res['nModified']表示修改的文档数量
+//$set：重置特定键的值，若字段不存在则新建字段并赋值
+$res = $collection->update(['First Name' => 'Jet'], ['$set' => ['Hobby' => 'pingpong']]);
+//$unset：删除字段
+$res = $collection->update(['First Name' => 'Jet'], ['$unset' => ['Hobby' => 1]]);
+//$rename：重命名字段，若字段不存在则不进行任何操作
+$res = $collection->update(['First Name' => 'Jet'], ['$rename' => ['Hobby' => 'hobby', 'Age' => 'age']]);
+//注意：如果文档中已经使用了指定名称的字段，则该字段将会被删除，然后再进行重命名操作。
+//$setOnInsert：设置了upsert为true，并且发生了插入操作的时候，将某个字段设置为特定的
+$res = $collection->update(['First Name' => 'jet'], ['$setOnInsert' => ['lang' => 'English']], ['upsert' => true]);
+//$push：向指定字段添加一个值（作用于数组字段），若字段不存在会先创建字段，若字段值不是数组会报错
+$res = $collection->update(['First Name' => 'Jet'], ['$push' => ['E-Mail' => '123123@qq.com']]);
+//$push：向指定字段添加多个值（作用于数组字段），若字段不存在会先创建字段，若字段值不是数组会报错
+$res = $collection->update(['First Name' => 'Jet'], ['$pushAll' => ['E-Mail' => ['666@qq.com', '8888888@qq.com']]]);
+//使用$push和$each向某个字段添加多个值（作用于数组字段），若字段不存在会先创建字段，若字段值不是数组会报错
+$res = $collection->update(['First Name' => 'Jet'], ['$push' => ['E-Mail' => ['$each' => ['123123@qq.com', '666@qq.com']]]]);
+//$addToSet：将数据添加到数组中（只在目标数组没有该数据的时候才将数据添加到数组中）
+$res = $collection->update(['First Name' => 'Jet'], ['$addToSet' => ['E-Mail' => '123123@qq.com']]);
+$res = $collection->update(['First Name' => 'Jet'], ['$addToSet' => ['E-Mail' => ['$each' => ['123123@qq.com', '666@qq.com']]]]);
+//$pop：从数组中删除一个元素，-1表示删除第一个元素，1表示删除最后一个元素（其实负数都删除第一个元素，0或正数都删除最后一个元素）
+$res = $collection->update(['First Name' => 'Jet'], ['$pop' => ['E-Mail' => 1]]);
+//$pull：删除数组中所有指定值
+$res = $collection->update(['First Name' => 'Jet'], ['$pull' => ['E-Mail' => '123123@qq.com']]);
+//$pullAll：删除数组中多个元素的所有值
+$res = $collection->update(['First Name' => 'Jet'], ['$pullAll' => ['E-Mail' => ['123123@qq.com', '666@qq.com']]]);
+//save()
+//参数1：希望保存的信息数组
+//参数2：扩展选项
+// fsync：若设置为true，w参数将被覆盖为0，数据将在更新结果返回前同步到磁盘。
+// w：默认为1；若设置为0，更新操作将不会得到确认；使用复制集时可设置为n，确保主服务器在将修改复制到n个节点后才确认该更新操作
+// j：默认为false，若设置为true，数据将在更新结果返回之前写入到日志中。
+// wtimeout：默认为10000（毫秒），用于指定服务器等待接收确认的时间
+// timeout：指定客户端需要等待服务器响应的超时时间（毫秒）
+//注意：若已存在则更新，若不存在则插入；更新时使用参数1指定的信息数组替换整个文档。
+//若想更新则应该在参数1中指定_id键的值。
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$doc = [//定义一个文档，即一个数组
+  'First Name' => 'Jet',
+  'Last Name' => 'Wu',
+  'Age' => 26,
+  'Phone' => '110',
+  'Address' => [
+    'Country' => 'China',
+    'City' => 'Shen Zhen'
+  ],
+  'E-Mail' => [
+    '123456@qq.com',
+    '666666@sina.com',
+    '8888888@qq.com',
+    '77887788@qq.com'
+  ]
+];
+$res = $collection->save($doc);
+echo '<pre>';
+print_r($res);//$res['ok']=1表示操作成功，$res['updatedExisting']=1表示更新，$res['upserted']=1表示插入
+//findAndModify()
+//参数1：指定查询条件
+//参数2：指定用于更新文档的信息
+//参数3：可选，指定希望返回的字段
+//参数4：扩展选项
+// sort：以特定顺序对匹配文档进行排序
+// remove：若设置为true，第一个匹配文档将被删除
+// update：若设置为true，将在被选择的文档上执行更新操作
+// new：默认为false，若设置为true则返回更新后的文档，否则返回更新前的文档
+// upsert：若设置为true，没有找到匹配文档的时候将插入一个新的文档
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$res = $collection->findAndModify(['First Name' => 'Jet'], ['$push' => ['E-Mail' => '111@qq.com']]);
+echo '<pre>';
+print_r($res);
+
+
+四、数据删除
+
+//remove()
+//参数1：查询条件
+//参数2：扩展选项
+// justOne：若设置为true，则最多只有一个匹配的文档将被删除
+// fsync：若设置为true，w参数将被覆盖为0，数据将在更新结果返回前同步到磁盘。
+// w：默认为1；若设置为0，更新操作将不会得到确认；使用复制集时可设置为n，确保主服务器在将修改复制到n个节点后才确认该更新操作
+// j：默认为false，若设置为true，数据将在更新结果返回之前写入到日志中。
+// wtimeout：默认为10000（毫秒），用于指定服务器等待接收确认的时间
+// timeout：指定客户端需要等待服务器响应的超时时间（毫秒）
+$mongo = new MongoClient('mongodb://localhost:27017');
+$db = $mongo->mf;
+$collection = $db->friend;
+$res = $collection->remove(['First Name' => 'jet']);
+echo '<pre>';
+print_r($res);//$res['n']表示删除了几个文档
