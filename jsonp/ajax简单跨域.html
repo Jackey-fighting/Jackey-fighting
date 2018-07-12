@@ -1,0 +1,13 @@
+$.ajax({
+    type: 'get',
+    url: 'http://xxx.com',
+    data: {},
+    dataType: 'jsonp',
+    success: function (data) {
+        
+    },
+    error: function (data) {
+        mask.close();
+        toast('请求失败');
+    }
+});
