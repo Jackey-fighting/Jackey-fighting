@@ -17,3 +17,7 @@ exit 0
 还有特别要注意的是，一定要检查定时器cron是否开始：
 service crond status 查看状态
 service crond start 开始服务
+
+crontab -l 查看定时器内容
+crontab -e 编辑定时器内容
+crontab -r 删除定时器内容
