@@ -1,0 +1,19 @@
+我们想要执行每2秒的，那么我们首先需要写一个shell脚本(/home/test.sh)，内容是：
+#!/bin/bash
+
+step=2 #休眠时间
+
+for (( i = 0; i < 60; i=(i+step) )); do
+	date >> /home/cron.txt
+	sleep 2
+done
+
+exit 0
+
+然后再 crontab -e 来编辑定时器内容，有的是 cron -e的，内容是：
+#分 时 周 月 年
+* * * * * /home/test.sh #这样是默认每分钟执行一次test.sh脚本
+
+还有特别要注意的是，一定要检查定时器cron是否开始：
+service crond status 查看状态
+service crond start 开始服务
