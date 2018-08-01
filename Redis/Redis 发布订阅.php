@@ -11,3 +11,6 @@ function callback($redis, $channel, $msg){
 
 phpredis 命令URL：
 https://github.com/phpredis/phpredis#psubscribe
+
+#window下redis拓展安装包
+https://pecl.php.net/package/redis/
