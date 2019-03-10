@@ -20,5 +20,5 @@ $book = new MyBook();
 $computer = new MyCoumputer();
 $book->service('Jackey','20000000','24');
 echo PHP_EOL;
-$computer->service('Eting','50000000','24');
+$computer->service('Jackey-2','50000000','24');
 ?>
