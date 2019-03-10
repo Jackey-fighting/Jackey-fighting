@@ -16,9 +16,21 @@ class MyCoumputer extends CommodityObject{
 		echo '如发生非人为质量问题，请在3个月内更换。';
 	}
 }
+header('content-type: text/html;charset=utf-8');
+
 $book = new MyBook();
 $computer = new MyCoumputer();
 $book->service('Jackey','20000000','24');
 echo PHP_EOL;
 $computer->service('Jackey-2','50000000','24');
+
+echo '<br/>--------------------------------依赖注入------------------------------------------<br/>';
+class TestClass{
+	function __construct(CommodityObject $obj,$getName,$price,$num)
+	{
+		$obj->service($getName,$price,$num);
+	}
+}
+$book = new MyBook();
+new TestClass($book, 'Jackey','20000000','24');
 ?>
