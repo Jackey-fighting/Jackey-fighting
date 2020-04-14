@@ -1,4 +1,5 @@
 <?php
+#3des加密  EBC模式  7padding填充  密钥24位（自定义）  初始化向量IV可以默认
 $keyForTDES = "123456789012345678901234";//加密所用密钥
 $defaultIV = "XXXXXXX";//初始化向量IV
 //$defaultIV = mcrypt_create_iv( mcrypt_enc_get_iv_size( $td ), MCRYPT_RAND );
