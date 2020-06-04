@@ -1,0 +1,35 @@
+遍历ng-model，并获取值，并对应的修改input值填充
+<tr ng-repeat="data in carInfos">
+  <td>
+    <select ng-model="allIncome.income_hour" style="width: 100px;" class="m-b col-sm-4" required ng-click="test(this)">
+      <option value ="1">1个月</option>
+      <option value ="2">2个月</option>
+      <option value ="3">3个月</option>
+      <option value ="4">4个月</option>
+      <option value ="5">5个月</option>
+      <option value ="6">6个月</option>
+      <option value ="7">7个月</option>
+      <option value ="8">8个月</option>
+      <option value ="9">9个月</option>
+      <option value ="10">10个月</option>
+      <option value ="11">11个月</option>
+      <option value ="12">12个月</option>
+    </select>
+    </td>
+<!--data.recieve_price-->
+    <td ><input type="text" ng-model="$parent.recieve_price[$index]" class="form-control" disabled></td>
+    <td><input type="text" ng-model="$parent.promotion[$index]" class="form-control"></td>
+    <td><input type="text" ng-model="$parent.actual_recieve_money[$index]" class="form-control" disabled></td>
+</tr>
+在控制器里写
+$scope.recieve_price = [];
+       $scope.promotion = [];
+       $scope.actual_recieve_money = [];
+       $scope.test = function(index){
+           $scope.recieve_price[index.$index] = index.data['recieve_price'] * index.allIncome['income_hour'];
+           $scope.promotion[index.$index] = index.data['promotion'];
+           $scope.actual_recieve_money[index.$index] = 0;
+           $scope.actual_recieve_money[index.$index] = ($scope.recieve_price[index.$index] - $scope.promotion[index.$index]).toFixed(2);
+       };
+       
+可以参考        https://www.jianshu.com/p/b0536cee8b0c
