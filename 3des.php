@@ -25,7 +25,7 @@ $defaultIV = "XXXXXXX";//初始化向量IV
      /**
       * 使用3DES解密密文
       * @param string $encryptedData 密文
-      * @param string $key           密钥
+      * @param string $key           密钥 
       * @param string $defaultIV     加解密向量
       * @return string $result       解密后的原文
       */
